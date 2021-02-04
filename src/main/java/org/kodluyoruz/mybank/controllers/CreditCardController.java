@@ -1,9 +1,9 @@
 package org.kodluyoruz.mybank.controllers;
 
 import org.kodluyoruz.mybank.exception.GeneralException;
+import org.kodluyoruz.mybank.models.CreateCreditCardResponse;
 import org.kodluyoruz.mybank.models.GetCreditCardReceiptResponse;
 import org.kodluyoruz.mybank.models.PayLoanFromAccountRequest;
-import org.kodluyoruz.mybank.models.PayLoanFromAtmRequest;
 import org.kodluyoruz.mybank.models.ShoppingRequest;
 import org.kodluyoruz.mybank.services.CreditCardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,11 +17,11 @@ public class CreditCardController {
     private CreditCardService creditCardService;
 
     @PostMapping("/{customer_id}")
-    public void createCreditCard(@PathVariable("customer_id") Long customerId) throws GeneralException {
-        creditCardService.createCreditCard(customerId);
+    public CreateCreditCardResponse createCreditCard(@PathVariable("customer_id") Long customerId) throws GeneralException {
+        return creditCardService.createCreditCard(customerId);
     }
 
-    @GetMapping("/loan/{id}")
+    @GetMapping("/{id}/loan")
     public double getCreditCardLoan(@PathVariable Long id) throws GeneralException {
         return creditCardService.inquireLoan(id);
     }
@@ -36,17 +36,18 @@ public class CreditCardController {
         creditCardService.payLoanFromAccount(request);
     }
 
-    @PostMapping("/payLoanFromAtm")
-    public void payLoanFromAtm(@RequestBody PayLoanFromAtmRequest request) throws GeneralException {
-        creditCardService.payLoanFromAtm(request);
+    @PostMapping("/{id}/payLoanFromAtm")
+    public void payLoanFromAtm(@PathVariable Long id,@RequestParam double amount) throws GeneralException {
+        creditCardService.payLoanFromAtm(id,amount);
     }
-    @GetMapping("/receipt/{id}")
-    public GetCreditCardReceiptResponse getReceipt(@PathVariable Long id,@RequestParam("month")int month,@RequestParam("year")int year) throws GeneralException {
-        return creditCardService.getReceipt(id,month,year);
+    @GetMapping("/{id}/receipt")
+    public GetCreditCardReceiptResponse getReceipt(@PathVariable Long id) throws GeneralException {
+        return creditCardService.getReceipt(id);
     }
 
-//    @GetMapping("/expenses/{id}")
-//    public GetCreditCardReceiptResponse getExpenses(@PathVariable Long id) throws GeneralException {
-//        return creditCardService.getExpenses(id);
-//    }
+    @PostMapping("/{id}/withdrawMoneyFromAtm")
+    public void withdrawMoneyFromAtm(@PathVariable Long id,@RequestParam double amount) throws GeneralException {
+        creditCardService.withdrawMoneyFromAtm(id,amount);
+    }
+
 }

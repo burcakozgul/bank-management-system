@@ -20,7 +20,7 @@ public class CreditCardService {
 
     private static final int CREDIT_CARD_EXPIRED_DURATION = 2;
     private static final int SPENDING_LIMIT = 2000;
-    private static final int RECEIPT_DAY=1;
+    private static final int RECEIPT_DAY = 1;
 
     @Autowired
     private CreditCardRepository creditCardRepository;
@@ -37,7 +37,7 @@ public class CreditCardService {
     @Autowired
     ExchangeAPI exchangeAPI;
 
-    public void createCreditCard(Long customerId) throws GeneralException {
+    public CreateCreditCardResponse createCreditCard(Long customerId) throws GeneralException {
         Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new GeneralException("Customer id doesn't exist"));
         if (customer.getCreditCard() == null) {
             CreditCard creditCard = new CreditCard();
@@ -50,6 +50,16 @@ public class CreditCardService {
             creditCard.setExpiredYear(LocalDate.now().getYear() + CREDIT_CARD_EXPIRED_DURATION);
             creditCard.setSpendingLimit(SPENDING_LIMIT);
             creditCardRepository.save(creditCard);
+
+            CreateCreditCardResponse response = new CreateCreditCardResponse();
+            response.setCardHolder(creditCard.getCardHolder());
+            response.setCardNumber(creditCard.getCardNumber());
+            response.setCvvNumber(creditCard.getCvvNumber());
+            response.setExpiredMonth(creditCard.getExpiredMonth());
+            response.setExpiredYear(creditCard.getExpiredYear());
+            response.setBalance(creditCard.getBalance());
+            response.setSpendingLimit(creditCard.getSpendingLimit());
+            return response;
         } else throw new GeneralException("Customer has credit card");
     }
 
@@ -79,9 +89,9 @@ public class CreditCardService {
                     double balance = creditCard.getBalance() - request.getAmount();
                     creditCard.setBalance(balance);
                     creditCardRepository.save(creditCard);
-                    saveReceipt(creditCard.getId(),-request.getAmount(),ProcessName.SHOPPING);
+                    saveReceipt(creditCard.getId(), -request.getAmount(), ProcessName.SHOPPING);
                 } else throw new GeneralException("Credit card limit doesn't enough");
-            } else throw new GeneralException("Card Date expired!");
+            } else throw new GeneralException("Credit card expired!");
         } else throw new GeneralException("Please check credit card information");
 
     }
@@ -99,9 +109,9 @@ public class CreditCardService {
     }
 
     public void payLoanFromAccount(PayLoanFromAccountRequest request) throws GeneralException {
-        CreditCard creditCard = creditCardRepository.findById(request.getCreditCardId()).orElseThrow(() -> new GeneralException("Credit card doesn't exist!"));
+        CreditCard creditCard = creditCardRepository.findById(request.getCreditCardId()).orElseThrow(() -> new GeneralException("Credit card id doesn't exist!"));
         Account account = accountRepository.findByIban(request.getIban()).orElseThrow(() -> new GeneralException("Account doesn't exist"));
-        if (!account.getAccountType().equals(AccountType.SAVING)){
+        if (!account.getAccountType().equals(AccountType.SAVING)) {
             if (creditCard.getCustomer().getId().equals(account.getCustomer().getId())) {
                 checkCurrency(creditCard, account, request.getAmount());
             } else throw new GeneralException("Credit card and Account don't belong to same customer.");
@@ -129,20 +139,36 @@ public class CreditCardService {
             creditCard.setBalance(creditCardAmount);
             creditCardRepository.save(creditCard);
             accountRepository.save(account);
-            saveReceipt(creditCard.getId(),paidAmount,ProcessName.PAY_LOAN_FROM_ACCOUNT);
+            saveReceipt(creditCard.getId(), paidAmount, ProcessName.PAY_LOAN_FROM_ACCOUNT);
         } else throw new GeneralException("Account amount doesn't enough.");
     }
 
-    public void payLoanFromAtm(PayLoanFromAtmRequest request) throws GeneralException {
-        double amount;
-        CreditCard creditCard = creditCardRepository.findById(request.getCreditCardId()).orElseThrow(() -> new GeneralException("Credit card doesn't exist!"));
-        amount = creditCard.getBalance() + request.getAmount();
-        creditCard.setBalance(amount);
-        creditCardRepository.save(creditCard);
-        saveReceipt(creditCard.getId(),request.getAmount(),ProcessName.PAY_LOAN_FROM_ATM);
+    public void payLoanFromAtm(Long id, double amount) throws GeneralException {
+        CreditCard creditCard = creditCardRepository.findById(id).orElseThrow(() -> new GeneralException("Credit card id doesn't exist!"));
+        if (!isExpired(creditCard)){
+            double lastAmount;
+            lastAmount = creditCard.getBalance() + amount;
+            creditCard.setBalance(lastAmount);
+            creditCardRepository.save(creditCard);
+            saveReceipt(creditCard.getId(), amount, ProcessName.PAY_LOAN_FROM_ATM);
+        } else throw new GeneralException("Credit card expired!");
     }
 
-    public void saveReceipt(Long id, double amount, ProcessName processName){
+    public void withdrawMoneyFromAtm(Long id, double amount) throws GeneralException {
+        CreditCard creditCard = creditCardRepository.findById(id).orElseThrow(() -> new GeneralException("Credit card id doesn't exist!"));
+        if (!isExpired(creditCard)) {
+            if (creditCard.getSpendingLimit() >= amount) {
+                double lastAmount = creditCard.getSpendingLimit() - amount;
+                creditCard.setSpendingLimit(lastAmount);
+                double balance = creditCard.getBalance() - amount;
+                creditCard.setBalance(balance);
+                creditCardRepository.save(creditCard);
+                saveReceipt(creditCard.getId(), -amount, ProcessName.WITHDRAW_MONEY_FROM_ATM);
+            } else throw new GeneralException("Credit card limit doesn't enough");
+        } else throw new GeneralException("Credit card expired!");
+    }
+
+    public void saveReceipt(Long id, double amount, ProcessName processName) {
         CreditCardReceipt receipt = new CreditCardReceipt();
         receipt.setCreditCardId(id);
         receipt.setProcessName(processName);
@@ -151,12 +177,12 @@ public class CreditCardService {
         receiptRepository.save(receipt);
     }
 
-    public GetCreditCardReceiptResponse getReceipt(Long id, int month, int year) throws GeneralException {
-        creditCardRepository.findById(id).orElseThrow(()->new GeneralException("Credit card id doesn't exist!"));
+    public GetCreditCardReceiptResponse getReceipt(Long id) throws GeneralException {
+        creditCardRepository.findById(id).orElseThrow(() -> new GeneralException("Credit card id doesn't exist!"));
         List<CreditCardReceipt> receipts = receiptRepository.findByCreditCardIdAndDateGreaterThanEqualAndDateLessThanEqual(
-                id,LocalDateTime.of(year,month,RECEIPT_DAY,0, 0),LocalDateTime.of(year,month,RECEIPT_DAY,0,0).plusMonths(1));
+                id, LocalDateTime.now().withDayOfMonth(RECEIPT_DAY).minusMonths(1), LocalDateTime.now().withDayOfMonth(RECEIPT_DAY));
         GetCreditCardReceiptResponse receiptResponse = new GetCreditCardReceiptResponse();
-        if (!receipts.isEmpty()){
+        if (!receipts.isEmpty()) {
             for (CreditCardReceipt creditCardReceipt : receipts) {
                 Expenses expenses = new Expenses();
                 expenses.setProcessName(creditCardReceipt.getProcessName());
@@ -167,21 +193,4 @@ public class CreditCardService {
             return receiptResponse;
         } else throw new GeneralException("no credit card loan in selected month or year");
     }
-
-//    public GetCreditCardReceiptResponse getExpenses(Long id) throws GeneralException {
-//        creditCardRepository.findById(id).orElseThrow(()->new GeneralException("Credit card id doesn't exist!"));
-//        List<CreditCardReceipt> receipts= receiptRepository.findByCreditCardIdAndDateGreaterThanEqualAndDateLessThanEqual(
-//                id,LocalDateTime.now().withDayOfMonth(1),LocalDateTime.now());
-//        GetCreditCardReceiptResponse receiptResponse = new GetCreditCardReceiptResponse();
-//        if (!receipts.isEmpty()){
-//            for (CreditCardReceipt creditCardReceipt : receipts) {
-//                Expenses expenses = new Expenses();
-//                expenses.setProcessName(creditCardReceipt.getProcessName());
-//                expenses.setAmount(creditCardReceipt.getAmount());
-//                expenses.setDateTime(creditCardReceipt.getDate());
-//                receiptResponse.getExpenses().add(expenses);
-//            }
-//            return receiptResponse;
-//        } else throw new GeneralException("Don't have credit card loan now from 1 of this month");
-//    }
 }
