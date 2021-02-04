@@ -42,7 +42,7 @@ public class CustomerService {
     public void deleteCustomer(Long id) throws GeneralException {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new GeneralException("Customer id is not exist!"));
         if (customer.getCreditCard() != null) {
-            if (customer.getCreditCard().getBalance() > 0)
+            if (customer.getCreditCard().getBalance() < 0)
                 throw new GeneralException("This customer has a credit card balance!");
         } else {
             if (customer.getAccounts() != null || !customer.getAccounts().isEmpty()) {

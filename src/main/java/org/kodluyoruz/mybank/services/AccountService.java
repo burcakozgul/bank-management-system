@@ -10,7 +10,7 @@ import org.kodluyoruz.mybank.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 public class AccountService {
@@ -33,13 +33,13 @@ public class AccountService {
             account.setAccountType(request.getAccountType());
             account.setAmount(request.getAmount());
             account.setBranch(request.getBranch());
-            account.setCreatedDate(LocalDate.now());
+            account.setCreatedDate(LocalDateTime.now());
             account.setCurrency(request.getCurrency());
             accountRepository.save(account);
     }
 
     private String generateIban() {
-        char digits[] = {'0','1','2','3','4','5','6','7','8','9'};
+        char[] digits = {'0','1','2','3','4','5','6','7','8','9'};
         StringBuilder result = new StringBuilder();
         for(int i=0; i<24; i++) {
             result.append(digits[(int)Math.floor(Math.random() * 10)]);

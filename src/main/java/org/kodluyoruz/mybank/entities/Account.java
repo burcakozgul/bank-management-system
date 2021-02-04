@@ -1,7 +1,7 @@
 package org.kodluyoruz.mybank.entities;
 
 import javax.persistence.*;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 public class Account {
@@ -14,7 +14,7 @@ public class Account {
     private String iban;
     private double amount;
     private String branch;
-    private LocalDate createdDate;
+    private LocalDateTime createdDate;
 
     @Enumerated(EnumType.STRING)
     private Currency currency;
@@ -69,11 +69,11 @@ public class Account {
         this.branch = branch;
     }
 
-    public LocalDate getCreatedDate() {
+    public LocalDateTime getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(LocalDate createdDate) {
+    public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
     }
 

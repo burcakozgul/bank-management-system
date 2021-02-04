@@ -1,6 +1,7 @@
 package org.kodluyoruz.mybank.controllers;
 
 import org.kodluyoruz.mybank.exception.GeneralException;
+import org.kodluyoruz.mybank.models.GetCreditCardReceiptResponse;
 import org.kodluyoruz.mybank.models.PayLoanFromAccountRequest;
 import org.kodluyoruz.mybank.models.PayLoanFromAtmRequest;
 import org.kodluyoruz.mybank.models.ShoppingRequest;
@@ -20,8 +21,8 @@ public class CreditCardController {
         creditCardService.createCreditCard(customerId);
     }
 
-    @GetMapping("/{id}")
-    public double getCreditCardLoad(@PathVariable Long id) throws GeneralException {
+    @GetMapping("/loan/{id}")
+    public double getCreditCardLoan(@PathVariable Long id) throws GeneralException {
         return creditCardService.inquireLoan(id);
     }
 
@@ -39,4 +40,13 @@ public class CreditCardController {
     public void payLoanFromAtm(@RequestBody PayLoanFromAtmRequest request) throws GeneralException {
         creditCardService.payLoanFromAtm(request);
     }
+    @GetMapping("/receipt/{id}")
+    public GetCreditCardReceiptResponse getReceipt(@PathVariable Long id,@RequestParam("month")int month,@RequestParam("year")int year) throws GeneralException {
+        return creditCardService.getReceipt(id,month,year);
+    }
+
+//    @GetMapping("/expenses/{id}")
+//    public GetCreditCardReceiptResponse getExpenses(@PathVariable Long id) throws GeneralException {
+//        return creditCardService.getExpenses(id);
+//    }
 }
