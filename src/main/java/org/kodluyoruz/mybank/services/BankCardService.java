@@ -3,7 +3,9 @@ package org.kodluyoruz.mybank.services;
 import org.kodluyoruz.mybank.entities.Account;
 import org.kodluyoruz.mybank.entities.AccountType;
 import org.kodluyoruz.mybank.entities.BankCard;
-import org.kodluyoruz.mybank.exception.GeneralException;
+import org.kodluyoruz.mybank.exception.AccountException;
+import org.kodluyoruz.mybank.exception.BankCardException;
+import org.kodluyoruz.mybank.exception.ExceptionMessages;
 import org.kodluyoruz.mybank.models.CreateBankCardResponse;
 import org.kodluyoruz.mybank.models.ShoppingRequest;
 import org.kodluyoruz.mybank.repositories.AccountRepository;
@@ -24,9 +26,9 @@ public class BankCardService {
     @Autowired
     private AccountRepository accountRepository;
 
-    public CreateBankCardResponse createBankCard(Long accountId) throws GeneralException {
+    public CreateBankCardResponse createBankCard(Long accountId) {
         Account account = accountRepository.findByIdAndAccountType(accountId, AccountType.CHECKING).orElseThrow(() ->
-                new GeneralException("Account id doesn't exist or Account type doesn't valid!"));
+                new AccountException(ExceptionMessages.ACCOUNT_NOT_VALID));
         if (account.getBankCard() == null) {
             BankCard bankCard = new BankCard();
             bankCard.setAccount(account);
@@ -45,7 +47,7 @@ public class BankCardService {
             response.setExpiredYear(bankCard.getExpiredYear());
             response.setAmount(bankCard.getAccount().getAmount());
             return response;
-        } else throw new GeneralException("Account has bank card.");
+        } else throw new AccountException(ExceptionMessages.ACCOUNT_HAS_BANKCARD);
     }
 
     private long generateCard() {
@@ -57,18 +59,18 @@ public class BankCardService {
     }
 
 
-    public void shoppingByBankCard(ShoppingRequest request) throws GeneralException {
+    public void shoppingByBankCard(ShoppingRequest request) {
         BankCard bankCard = bankCardRepository.findByCardNumber(request.getCardNumber())
-                .orElseThrow(() -> new GeneralException("Bank card id doesn't exist!"));
+                .orElseThrow(() -> new BankCardException(ExceptionMessages.BANK_CARD_NOT_EXIST));
         if (checkCardInformation(request, bankCard)) {
             if (!isExpired(bankCard)) {
                 if (bankCard.getAccount().getAmount() >= request.getAmount()) {
                     double lastAmount = bankCard.getAccount().getAmount() - request.getAmount();
                     bankCard.getAccount().setAmount(lastAmount);
                     bankCardRepository.save(bankCard);
-                } else throw new GeneralException("Bank Card amount doesn't enough");
-            } else throw new GeneralException("Card expired!");
-        } else throw new GeneralException("Please check credit card information");
+                } else throw new BankCardException(ExceptionMessages.NOT_ENOUGH_BALANCE);
+            } else throw new BankCardException(ExceptionMessages.CARD_EXPIRED);
+        } else throw new BankCardException(ExceptionMessages.CARD_INFORMATION);
 
     }
 
@@ -84,23 +86,23 @@ public class BankCardService {
                 && request.getExpiredMonth() == bankCard.getExpiredMonth() && request.getExpiredYear() == bankCard.getExpiredYear();
     }
 
-    public void withdrawMoneyFromAtm(Long id, double amount) throws GeneralException {
-        BankCard bankCard = bankCardRepository.findById(id).orElseThrow(() -> new GeneralException("Bank card id doesn't exist!"));
+    public void withdrawMoneyFromAtm(Long id, double amount) {
+        BankCard bankCard = bankCardRepository.findById(id).orElseThrow(() -> new BankCardException(ExceptionMessages.BANK_CARD_NOT_EXIST));
         if (!isExpired(bankCard)) {
             if (bankCard.getAccount().getAmount() >= amount) {
                 double lastAmount = bankCard.getAccount().getAmount() - amount;
                 bankCard.getAccount().setAmount(lastAmount);
                 bankCardRepository.save(bankCard);
-            } else throw new GeneralException("Bank Card amount doesn't enough");
-        } else throw new GeneralException("Card expired!");
+            } else throw new BankCardException(ExceptionMessages.NOT_ENOUGH_BALANCE);
+        } else throw new BankCardException(ExceptionMessages.CARD_EXPIRED);
     }
 
-    public void depositMoneyInAtm(Long id, double amount) throws GeneralException {
-        BankCard bankCard = bankCardRepository.findById(id).orElseThrow(() -> new GeneralException("Bank card id doesn't exist!"));
+    public void depositMoneyInAtm(Long id, double amount) {
+        BankCard bankCard = bankCardRepository.findById(id).orElseThrow(() -> new BankCardException(ExceptionMessages.BANK_CARD_NOT_EXIST));
         if (!isExpired(bankCard)){
             double lastAmount = bankCard.getAccount().getAmount() + amount;
             bankCard.getAccount().setAmount(lastAmount);
             bankCardRepository.save(bankCard);
-        }else throw new GeneralException("Card expired!");
+        }else throw new BankCardException(ExceptionMessages.CARD_EXPIRED);
     }
 }

@@ -1,12 +1,9 @@
 package org.kodluyoruz.mybank.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import java.util.Date;
 
 public class Exchange {
 
-    @JsonProperty("rates")
     private Rates rates;
     private String base;
     private Date date;
