@@ -131,12 +131,15 @@ public class CreditCardService {
 
     private void setAmount(double amount, double paidAmount, CreditCard creditCard, Account account) throws GeneralException {
         double creditCardAmount;
+        double creditCardLimit;
         double accountAmount;
         if (account.getAmount() >= amount) {
             accountAmount = account.getAmount() - amount;
             creditCardAmount = creditCard.getBalance() + paidAmount;
+            creditCardLimit = creditCard.getSpendingLimit() + paidAmount;
             account.setAmount(accountAmount);
             creditCard.setBalance(creditCardAmount);
+            creditCard.setSpendingLimit(creditCardLimit);
             creditCardRepository.save(creditCard);
             accountRepository.save(account);
             saveReceipt(creditCard.getId(), paidAmount, ProcessName.PAY_LOAN_FROM_ACCOUNT);
@@ -147,8 +150,11 @@ public class CreditCardService {
         CreditCard creditCard = creditCardRepository.findById(id).orElseThrow(() -> new GeneralException("Credit card id doesn't exist!"));
         if (!isExpired(creditCard)){
             double lastAmount;
+            double lastLimit;
             lastAmount = creditCard.getBalance() + amount;
+            lastLimit = creditCard.getSpendingLimit() +amount;
             creditCard.setBalance(lastAmount);
+            creditCard.setSpendingLimit(lastLimit);
             creditCardRepository.save(creditCard);
             saveReceipt(creditCard.getId(), amount, ProcessName.PAY_LOAN_FROM_ATM);
         } else throw new GeneralException("Credit card expired!");

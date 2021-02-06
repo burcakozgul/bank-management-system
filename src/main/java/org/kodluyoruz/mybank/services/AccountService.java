@@ -54,8 +54,8 @@ public class AccountService {
     }
 
     public void moneyTransfer(MoneyTransferRequest request) throws GeneralException {
-        Account senderAccount = accountRepository.findByIban(request.getSenderIban()).orElseThrow(()-> new GeneralException(""));
-        Account receiverAccount = accountRepository.findByIban(request.getReceiverIban()).orElseThrow(()-> new GeneralException(""));
+        Account senderAccount = accountRepository.findByIban(request.getSenderIban()).orElseThrow(()-> new GeneralException("Sender Iban not found!"));
+        Account receiverAccount = accountRepository.findByIban(request.getReceiverIban()).orElseThrow(()-> new GeneralException("Receiver Iban not found"));
         double amount = request.getAmount();
         if (senderAccount.getAmount() >= amount) {
             if (senderAccount.getAccountType().equals(AccountType.SAVING) || receiverAccount.getAccountType().equals(AccountType.SAVING)) {
