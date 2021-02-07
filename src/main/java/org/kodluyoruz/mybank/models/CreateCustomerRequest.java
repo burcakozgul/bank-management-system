@@ -2,18 +2,18 @@ package org.kodluyoruz.mybank.models;
 
 public class CreateCustomerRequest {
 
-    private String personalIdNo;
+    private String tckn;
     private String fullName;
     private String address;
     private String phoneNumber;
     private String email;
 
-    public String getPersonalIdNo() {
-        return personalIdNo;
+    public String getTckn() {
+        return tckn;
     }
 
-    public void setPersonalIdNo(String personalIdNo) {
-        this.personalIdNo = personalIdNo;
+    public void setTckn(String tckn) {
+        this.tckn = tckn;
     }
 
     public String getFullName() {

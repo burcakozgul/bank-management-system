@@ -1,9 +1,6 @@
 package org.kodluyoruz.mybank.controllers;
 
-import org.kodluyoruz.mybank.models.CreateCreditCardResponse;
-import org.kodluyoruz.mybank.models.GetCreditCardReceiptResponse;
-import org.kodluyoruz.mybank.models.PayLoanFromAccountRequest;
-import org.kodluyoruz.mybank.models.ShoppingRequest;
+import org.kodluyoruz.mybank.models.*;
 import org.kodluyoruz.mybank.services.CreditCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -15,13 +12,13 @@ public class CreditCardController {
     @Autowired
     private CreditCardService creditCardService;
 
-    @PostMapping("/{customer_id}")
-    public CreateCreditCardResponse createCreditCard(@PathVariable("customer_id") Long customerId) {
+    @PostMapping("/{customerId}")
+    public CreateCreditCardResponse createCreditCard(@PathVariable Long customerId) {
         return creditCardService.createCreditCard(customerId);
     }
 
     @GetMapping("/{id}/loan")
-    public double getCreditCardLoan(@PathVariable Long id) {
+    public GetCreditCardLoanResponse getCreditCardLoan(@PathVariable Long id) {
         return creditCardService.inquireLoan(id);
     }
 

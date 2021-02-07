@@ -18,7 +18,7 @@ public class CustomerService {
     @Autowired
     private CustomerRepository customerRepository;
 
-    public void updateCustomer(Long id, UpdateCustomerRequest request){
+    public void updateCustomer(Long id, UpdateCustomerRequest request) {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerException(ExceptionMessages.CUSTOMER_NOT_EXIST));
         customer.setAddress(request.getAddress());
         customer.setEmail(request.getEmail());
@@ -27,26 +27,24 @@ public class CustomerService {
     }
 
     public void createCustomer(CreateCustomerRequest request) {
-        if (customerRepository.findByPersonalIdNo(request.getPersonalIdNo()).isPresent())
+        if (customerRepository.existsByTckn(request.getTckn())) {
             throw new CustomerException(ExceptionMessages.CUSTOMER_EXIST);
-        else {
-            Customer customer = new Customer();
-            customer.setFullName(request.getFullName());
-            customer.setPhoneNumber(request.getPhoneNumber());
-            customer.setEmail(request.getEmail());
-            customer.setAddress(request.getAddress());
-            customer.setPersonalIdNo(request.getPersonalIdNo());
-            customerRepository.save(customer);
         }
+        Customer customer = new Customer();
+        customer.setFullName(request.getFullName());
+        customer.setPhoneNumber(request.getPhoneNumber());
+        customer.setEmail(request.getEmail());
+        customer.setAddress(request.getAddress());
+        customer.setTckn(request.getTckn());
+        customerRepository.save(customer);
     }
 
     public void deleteCustomer(Long id) {
         Customer customer = customerRepository.findById(id).orElseThrow(() -> new CustomerException(ExceptionMessages.CUSTOMER_NOT_EXIST));
-        if (customer.getCreditCard() != null) {
-            if (customer.getCreditCard().getBalance() < 0)
-                throw new CustomerException(ExceptionMessages.CREDIT_CARD_BALANCE);
+        if (customer.getCreditCard() != null && customer.getCreditCard().getBalance() < 0) {
+            throw new CustomerException(ExceptionMessages.CREDIT_CARD_BALANCE);
         } else {
-            if (customer.getAccounts() != null || !customer.getAccounts().isEmpty()) {
+            if (customer.getAccounts() != null) {
                 List<Account> accounts = customer.getAccounts();
                 for (Account account : accounts) {
                     if (account.getAmount() > 0) {

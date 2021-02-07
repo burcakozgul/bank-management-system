@@ -51,7 +51,9 @@ public class AccountService {
 
     public void deleteAccount(Long id) {
         Account account = accountRepository.findById(id).orElseThrow(() -> new AccountException(ExceptionMessages.ACCOUNT_NOT_EXIST));
-        if (account.getAmount() > 0) throw new AccountException(ExceptionMessages.ACCOUNT_BALANCE);
+        if (account.getAmount() > 0){
+            throw new AccountException(ExceptionMessages.ACCOUNT_BALANCE);
+        }
         accountRepository.delete(account);
     }
 
@@ -59,15 +61,15 @@ public class AccountService {
         Account senderAccount = accountRepository.findByIban(request.getSenderIban()).orElseThrow(() -> new AccountException(ExceptionMessages.SENDER_IBAN_NOT_FOUND));
         Account receiverAccount = accountRepository.findByIban(request.getReceiverIban()).orElseThrow(() -> new AccountException(ExceptionMessages.RECEIVER_IBAN_NOT_FOUND));
         double amount = request.getAmount();
-        if (senderAccount.getAmount() >= amount) {
-            if (senderAccount.getAccountType().equals(AccountType.SAVING) || receiverAccount.getAccountType().equals(AccountType.SAVING)) {
-                if (senderAccount.getCustomer().getId().equals(receiverAccount.getCustomer().getId())) {
-                    checkCurrency(senderAccount, receiverAccount, amount);
-                } else throw new AccountException(ExceptionMessages.MONEY_TRANSFER_OTHER_CUSTOMER_SAVING_ACCOUNT);
-            } else {
-                checkCurrency(senderAccount, receiverAccount, amount);
-            }
-        } else throw new AccountException(ExceptionMessages.NOT_ENOUGH_BALANCE);
+        if (senderAccount.getAmount() < amount) {
+            throw new AccountException(ExceptionMessages.NOT_ENOUGH_BALANCE);
+        }
+        if ((senderAccount.getAccountType().equals(AccountType.SAVING) || receiverAccount.getAccountType().equals(AccountType.SAVING))
+                && !senderAccount.getCustomer().getId().equals(receiverAccount.getCustomer().getId())) {
+            throw new AccountException(ExceptionMessages.MONEY_TRANSFER_OTHER_CUSTOMER_SAVING_ACCOUNT);
+        } else {
+            checkCurrency(senderAccount, receiverAccount, amount);
+        }
     }
 
     private void checkCurrency(Account senderAccount, Account receiverAccount, double amount) {

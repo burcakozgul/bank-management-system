@@ -9,7 +9,7 @@ public class Customer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String personalIdNo;
+    private String tckn;
     private String fullName;
     private String address;
     private String phoneNumber;
@@ -29,12 +29,12 @@ public class Customer {
         this.id = id;
     }
 
-    public String getPersonalIdNo() {
-        return personalIdNo;
+    public String getTckn() {
+        return tckn;
     }
 
-    public void setPersonalIdNo(String personalIdNo) {
-        this.personalIdNo = personalIdNo;
+    public void setTckn(String tckn) {
+        this.tckn = tckn;
     }
 
     public String getFullName() {

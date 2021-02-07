@@ -42,28 +42,32 @@ public class CreditCardService {
 
     public CreateCreditCardResponse createCreditCard(Long customerId) {
         Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new CustomerException(ExceptionMessages.CUSTOMER_NOT_EXIST));
-        if (customer.getCreditCard() == null) {
-            CreditCard creditCard = new CreditCard();
-            creditCard.setCustomer(customer);
-            creditCard.setBalance(0);
-            creditCard.setCardHolder(customer.getFullName());
-            creditCard.setCvvNumber(generateCvvNumber());
-            creditCard.setCardNumber(generateCardNumber());
-            creditCard.setExpiredMonth(LocalDate.now().getMonthValue());
-            creditCard.setExpiredYear(LocalDate.now().getYear() + CREDIT_CARD_EXPIRED_DURATION);
-            creditCard.setSpendingLimit(SPENDING_LIMIT);
-            creditCardRepository.save(creditCard);
+        if (customer.getCreditCard() != null) {
+            throw new CustomerException(ExceptionMessages.CUSTOMER_HAS_CREDIT_CARD);
+        }
+        CreditCard creditCard = new CreditCard();
+        creditCard.setCustomer(customer);
+        creditCard.setBalance(0);
+        creditCard.setCardHolder(customer.getFullName());
+        creditCard.setCvvNumber(generateCvvNumber());
+        creditCard.setCardNumber(generateCardNumber());
+        creditCard.setExpiredMonth(LocalDate.now().getMonthValue());
+        creditCard.setExpiredYear(LocalDate.now().getYear() + CREDIT_CARD_EXPIRED_DURATION);
+        creditCard.setSpendingLimit(SPENDING_LIMIT);
+        creditCardRepository.save(creditCard);
+        return setResponse(creditCard);
+    }
 
-            CreateCreditCardResponse response = new CreateCreditCardResponse();
-            response.setCardHolder(creditCard.getCardHolder());
-            response.setCardNumber(creditCard.getCardNumber());
-            response.setCvvNumber(creditCard.getCvvNumber());
-            response.setExpiredMonth(creditCard.getExpiredMonth());
-            response.setExpiredYear(creditCard.getExpiredYear());
-            response.setBalance(creditCard.getBalance());
-            response.setSpendingLimit(creditCard.getSpendingLimit());
-            return response;
-        } else throw new CustomerException(ExceptionMessages.CUSTOMER_HAS_CREDIT_CARD);
+    private CreateCreditCardResponse setResponse(CreditCard creditCard) {
+        CreateCreditCardResponse response = new CreateCreditCardResponse();
+        response.setCardHolder(creditCard.getCardHolder());
+        response.setCardNumber(creditCard.getCardNumber());
+        response.setCvvNumber(creditCard.getCvvNumber());
+        response.setExpiredMonth(creditCard.getExpiredMonth());
+        response.setExpiredYear(creditCard.getExpiredYear());
+        response.setBalance(creditCard.getBalance());
+        response.setSpendingLimit(creditCard.getSpendingLimit());
+        return response;
     }
 
     private long generateCardNumber() {
@@ -75,28 +79,38 @@ public class CreditCardService {
     }
 
 
-    public double inquireLoan(Long id) {
+    public GetCreditCardLoanResponse inquireLoan(Long id) {
         CreditCard creditCard = creditCardRepository.findById(id).orElseThrow(() -> new CreditCardException(ExceptionMessages.CREDIT_CARD_NOT_EXIST));
-        return creditCard.getBalance();
+        GetCreditCardLoanResponse response = new GetCreditCardLoanResponse();
+        response.setCardNumber(creditCard.getCardNumber());
+        response.setSpendingLimit(creditCard.getSpendingLimit());
+        response.setLoan(creditCard.getBalance());
+        return response;
     }
 
 
     public void shoppingByCreditCard(ShoppingRequest request) {
         CreditCard creditCard = creditCardRepository.findByCardNumber(request.getCardNumber())
                 .orElseThrow(() -> new CreditCardException(ExceptionMessages.CREDIT_CARD_NOT_EXIST));
-        if (checkCardInformation(request, creditCard)) {
-            if (!isExpired(creditCard)) {
-                if (creditCard.getSpendingLimit() >= request.getAmount()) {
-                    double amount = creditCard.getSpendingLimit() - request.getAmount();
-                    creditCard.setSpendingLimit(amount);
-                    double balance = creditCard.getBalance() - request.getAmount();
-                    creditCard.setBalance(balance);
-                    creditCardRepository.save(creditCard);
-                    saveReceipt(creditCard.getId(), -request.getAmount(), ProcessName.SHOPPING);
-                } else throw new CreditCardException(ExceptionMessages.NOT_ENOUGH_BALANCE);
-            } else throw new CreditCardException(ExceptionMessages.CARD_EXPIRED);
-        } else throw new CreditCardException(ExceptionMessages.CARD_INFORMATION);
+        validationCreditCard(request, creditCard);
+        double amount = creditCard.getSpendingLimit() - request.getAmount();
+        creditCard.setSpendingLimit(amount);
+        double balance = creditCard.getBalance() - request.getAmount();
+        creditCard.setBalance(balance);
+        creditCardRepository.save(creditCard);
+        saveReceipt(creditCard.getId(), -request.getAmount(), ProcessName.SHOPPING);
+    }
 
+    private void validationCreditCard(ShoppingRequest request, CreditCard creditCard) {
+        if (!checkCardInformation(request, creditCard)) {
+            throw new CreditCardException(ExceptionMessages.CARD_INFORMATION);
+        }
+        if (isExpired(creditCard)) {
+            throw new CreditCardException(ExceptionMessages.CARD_EXPIRED);
+        }
+        if (creditCard.getSpendingLimit() < request.getAmount()) {
+            throw new CreditCardException(ExceptionMessages.NOT_ENOUGH_BALANCE);
+        }
     }
 
     private boolean isExpired(CreditCard creditCard) {
@@ -114,11 +128,13 @@ public class CreditCardService {
     public void payLoanFromAccount(PayLoanFromAccountRequest request) {
         CreditCard creditCard = creditCardRepository.findById(request.getCreditCardId()).orElseThrow(() -> new CreditCardException(ExceptionMessages.CREDIT_CARD_NOT_EXIST));
         Account account = accountRepository.findByIban(request.getIban()).orElseThrow(() -> new AccountException(ExceptionMessages.ACCOUNT_NOT_EXIST));
-        if (!account.getAccountType().equals(AccountType.SAVING)) {
-            if (creditCard.getCustomer().getId().equals(account.getCustomer().getId())) {
-                checkCurrency(creditCard, account, request.getAmount());
-            } else throw new CreditCardException(ExceptionMessages.NOT_SAME_CUSTOMER);
-        } else throw new AccountException(ExceptionMessages.PAY_LOAN_FROM_SAVING_ACCOUNT);
+        if (account.getAccountType().equals(AccountType.SAVING)) {
+            throw new AccountException(ExceptionMessages.PAY_LOAN_FROM_SAVING_ACCOUNT);
+        }
+        if (!creditCard.getCustomer().getId().equals(account.getCustomer().getId())) {
+            throw new CreditCardException(ExceptionMessages.NOT_SAME_CUSTOMER);
+        }
+        checkCurrency(creditCard, account, request.getAmount());
     }
 
     private void checkCurrency(CreditCard creditCard, Account account, double paidAmount) {
@@ -136,45 +152,49 @@ public class CreditCardService {
         double creditCardAmount;
         double creditCardLimit;
         double accountAmount;
-        if (account.getAmount() >= amount) {
-            accountAmount = account.getAmount() - amount;
-            creditCardAmount = creditCard.getBalance() + paidAmount;
-            creditCardLimit = creditCard.getSpendingLimit() + paidAmount;
-            account.setAmount(accountAmount);
-            creditCard.setBalance(creditCardAmount);
-            creditCard.setSpendingLimit(creditCardLimit);
-            creditCardRepository.save(creditCard);
-            accountRepository.save(account);
-            saveReceipt(creditCard.getId(), paidAmount, ProcessName.PAY_LOAN_FROM_ACCOUNT);
-        } else throw new AccountException(ExceptionMessages.NOT_ENOUGH_BALANCE);
+        if (account.getAmount() < amount) {
+            throw new AccountException(ExceptionMessages.NOT_ENOUGH_BALANCE);
+        }
+        accountAmount = account.getAmount() - amount;
+        creditCardAmount = creditCard.getBalance() + paidAmount;
+        creditCardLimit = creditCard.getSpendingLimit() + paidAmount;
+        account.setAmount(accountAmount);
+        creditCard.setBalance(creditCardAmount);
+        creditCard.setSpendingLimit(creditCardLimit);
+        creditCardRepository.save(creditCard);
+        accountRepository.save(account);
+        saveReceipt(creditCard.getId(), paidAmount, ProcessName.PAY_LOAN_FROM_ACCOUNT);
     }
 
     public void payLoanFromAtm(Long id, double amount) {
         CreditCard creditCard = creditCardRepository.findById(id).orElseThrow(() -> new CreditCardException(ExceptionMessages.CREDIT_CARD_NOT_EXIST));
-        if (!isExpired(creditCard)) {
-            double lastAmount;
-            double lastLimit;
-            lastAmount = creditCard.getBalance() + amount;
-            lastLimit = creditCard.getSpendingLimit() + amount;
-            creditCard.setBalance(lastAmount);
-            creditCard.setSpendingLimit(lastLimit);
-            creditCardRepository.save(creditCard);
-            saveReceipt(creditCard.getId(), amount, ProcessName.PAY_LOAN_FROM_ATM);
-        } else throw new CreditCardException(ExceptionMessages.CARD_EXPIRED);
+        if (isExpired(creditCard)) {
+            throw new CreditCardException(ExceptionMessages.CARD_EXPIRED);
+        }
+        double lastAmount;
+        double lastLimit;
+        lastAmount = creditCard.getBalance() + amount;
+        lastLimit = creditCard.getSpendingLimit() + amount;
+        creditCard.setBalance(lastAmount);
+        creditCard.setSpendingLimit(lastLimit);
+        creditCardRepository.save(creditCard);
+        saveReceipt(creditCard.getId(), amount, ProcessName.PAY_LOAN_FROM_ATM);
     }
 
     public void withdrawMoneyFromAtm(Long id, double amount) {
         CreditCard creditCard = creditCardRepository.findById(id).orElseThrow(() -> new CreditCardException(ExceptionMessages.CREDIT_CARD_NOT_EXIST));
-        if (!isExpired(creditCard)) {
-            if (creditCard.getSpendingLimit() >= amount) {
-                double lastAmount = creditCard.getSpendingLimit() - amount;
-                creditCard.setSpendingLimit(lastAmount);
-                double balance = creditCard.getBalance() - amount;
-                creditCard.setBalance(balance);
-                creditCardRepository.save(creditCard);
-                saveReceipt(creditCard.getId(), -amount, ProcessName.WITHDRAW_MONEY_FROM_ATM);
-            } else throw new CreditCardException(ExceptionMessages.NOT_ENOUGH_BALANCE);
-        } else throw new CreditCardException(ExceptionMessages.CARD_EXPIRED);
+        if (isExpired(creditCard)) {
+            throw new CreditCardException(ExceptionMessages.CARD_EXPIRED);
+        }
+        if (creditCard.getSpendingLimit() < amount) {
+            throw new CreditCardException(ExceptionMessages.NOT_ENOUGH_BALANCE);
+        }
+        double lastAmount = creditCard.getSpendingLimit() - amount;
+        creditCard.setSpendingLimit(lastAmount);
+        double balance = creditCard.getBalance() - amount;
+        creditCard.setBalance(balance);
+        creditCardRepository.save(creditCard);
+        saveReceipt(creditCard.getId(), -amount, ProcessName.WITHDRAW_MONEY_FROM_ATM);
     }
 
     public void saveReceipt(Long id, double amount, ProcessName processName) {
@@ -187,19 +207,26 @@ public class CreditCardService {
     }
 
     public GetCreditCardReceiptResponse getReceipt(Long id) {
-        creditCardRepository.findById(id).orElseThrow(() -> new CreditCardException(ExceptionMessages.CREDIT_CARD_NOT_EXIST));
+        if (!creditCardRepository.existsById(id)) {
+            throw new CreditCardException(ExceptionMessages.CREDIT_CARD_NOT_EXIST);
+        }
         List<CreditCardReceipt> receipts = receiptRepository.findByCreditCardIdAndDateGreaterThanEqualAndDateLessThanEqual(
                 id, LocalDateTime.now().withDayOfMonth(RECEIPT_DAY).minusMonths(1), LocalDateTime.now().withDayOfMonth(RECEIPT_DAY));
+        if (receipts.isEmpty()) {
+            throw new CreditCardException(ExceptionMessages.NO_CREDIT_CARD_RECEIPT);
+        }
+        return setReceipt(receipts);
+    }
+
+    private GetCreditCardReceiptResponse setReceipt(List<CreditCardReceipt> receipts) {
         GetCreditCardReceiptResponse receiptResponse = new GetCreditCardReceiptResponse();
-        if (!receipts.isEmpty()) {
-            for (CreditCardReceipt creditCardReceipt : receipts) {
-                Expenses expenses = new Expenses();
-                expenses.setProcessName(creditCardReceipt.getProcessName());
-                expenses.setAmount(creditCardReceipt.getAmount());
-                expenses.setDateTime(creditCardReceipt.getDate());
-                receiptResponse.getExpenses().add(expenses);
-            }
-            return receiptResponse;
-        } else throw new CreditCardException(ExceptionMessages.NO_CREDIT_CARD_LOAN);
+        for (CreditCardReceipt creditCardReceipt : receipts) {
+            Expenses expenses = new Expenses();
+            expenses.setProcessName(creditCardReceipt.getProcessName());
+            expenses.setAmount(creditCardReceipt.getAmount());
+            expenses.setDateTime(creditCardReceipt.getDate());
+            receiptResponse.getExpenses().add(expenses);
+        }
+        return receiptResponse;
     }
 }

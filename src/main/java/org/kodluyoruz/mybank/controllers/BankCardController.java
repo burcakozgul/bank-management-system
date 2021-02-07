@@ -13,8 +13,8 @@ public class BankCardController {
     @Autowired
     private BankCardService bankCardService;
 
-    @PostMapping("{account_id}")
-    public CreateBankCardResponse createBankCard(@PathVariable("account_id") Long accountId) {
+    @PostMapping("{accountId}")
+    public CreateBankCardResponse createBankCard(@PathVariable Long accountId) {
         return bankCardService.createBankCard(accountId);
     }
 

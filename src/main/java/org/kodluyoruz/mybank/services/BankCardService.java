@@ -29,25 +29,29 @@ public class BankCardService {
     public CreateBankCardResponse createBankCard(Long accountId) {
         Account account = accountRepository.findByIdAndAccountType(accountId, AccountType.CHECKING).orElseThrow(() ->
                 new AccountException(ExceptionMessages.ACCOUNT_NOT_VALID));
-        if (account.getBankCard() == null) {
-            BankCard bankCard = new BankCard();
-            bankCard.setAccount(account);
-            bankCard.setCardHolder(account.getCustomer().getFullName());
-            bankCard.setCardNumber(generateCard());
-            bankCard.setCvvNumber(generateCvvNumber());
-            bankCard.setExpiredMonth(LocalDate.now().getMonthValue());
-            bankCard.setExpiredYear(LocalDate.now().getYear() + BANK_CARD_EXPIRED_DURATION);
-            bankCardRepository.save(bankCard);
+        if (account.getBankCard() != null) {
+            throw new AccountException(ExceptionMessages.ACCOUNT_HAS_BANKCARD);
+        }
+        BankCard bankCard = new BankCard();
+        bankCard.setAccount(account);
+        bankCard.setCardHolder(account.getCustomer().getFullName());
+        bankCard.setCardNumber(generateCard());
+        bankCard.setCvvNumber(generateCvvNumber());
+        bankCard.setExpiredMonth(LocalDate.now().getMonthValue());
+        bankCard.setExpiredYear(LocalDate.now().getYear() + BANK_CARD_EXPIRED_DURATION);
+        bankCardRepository.save(bankCard);
+        return setResponse(bankCard);
+    }
 
-            CreateBankCardResponse response = new CreateBankCardResponse();
-            response.setCardHolder(bankCard.getCardHolder());
-            response.setCardNumber(bankCard.getCardNumber());
-            response.setCvvNumber(bankCard.getCvvNumber());
-            response.setExpiredMonth(bankCard.getExpiredMonth());
-            response.setExpiredYear(bankCard.getExpiredYear());
-            response.setAmount(bankCard.getAccount().getAmount());
-            return response;
-        } else throw new AccountException(ExceptionMessages.ACCOUNT_HAS_BANKCARD);
+    private CreateBankCardResponse setResponse(BankCard bankCard) {
+        CreateBankCardResponse response = new CreateBankCardResponse();
+        response.setCardHolder(bankCard.getCardHolder());
+        response.setCardNumber(bankCard.getCardNumber());
+        response.setCvvNumber(bankCard.getCvvNumber());
+        response.setExpiredMonth(bankCard.getExpiredMonth());
+        response.setExpiredYear(bankCard.getExpiredYear());
+        response.setAmount(bankCard.getAccount().getAmount());
+        return response;
     }
 
     private long generateCard() {
@@ -62,16 +66,22 @@ public class BankCardService {
     public void shoppingByBankCard(ShoppingRequest request) {
         BankCard bankCard = bankCardRepository.findByCardNumber(request.getCardNumber())
                 .orElseThrow(() -> new BankCardException(ExceptionMessages.BANK_CARD_NOT_EXIST));
-        if (checkCardInformation(request, bankCard)) {
-            if (!isExpired(bankCard)) {
-                if (bankCard.getAccount().getAmount() >= request.getAmount()) {
-                    double lastAmount = bankCard.getAccount().getAmount() - request.getAmount();
-                    bankCard.getAccount().setAmount(lastAmount);
-                    bankCardRepository.save(bankCard);
-                } else throw new BankCardException(ExceptionMessages.NOT_ENOUGH_BALANCE);
-            } else throw new BankCardException(ExceptionMessages.CARD_EXPIRED);
-        } else throw new BankCardException(ExceptionMessages.CARD_INFORMATION);
+        validationBankCard(request, bankCard);
+        double lastAmount = bankCard.getAccount().getAmount() - request.getAmount();
+        bankCard.getAccount().setAmount(lastAmount);
+        bankCardRepository.save(bankCard);
+    }
 
+    private void validationBankCard(ShoppingRequest request, BankCard bankCard) {
+        if (!checkCardInformation(request, bankCard)) {
+            throw new BankCardException(ExceptionMessages.CARD_INFORMATION);
+        }
+        if (isExpired(bankCard)) {
+            throw new BankCardException(ExceptionMessages.CARD_EXPIRED);
+        }
+        if (bankCard.getAccount().getAmount() < request.getAmount()) {
+            throw new BankCardException(ExceptionMessages.NOT_ENOUGH_BALANCE);
+        }
     }
 
     private boolean isExpired(BankCard bankCard) {
@@ -88,21 +98,25 @@ public class BankCardService {
 
     public void withdrawMoneyFromAtm(Long id, double amount) {
         BankCard bankCard = bankCardRepository.findById(id).orElseThrow(() -> new BankCardException(ExceptionMessages.BANK_CARD_NOT_EXIST));
-        if (!isExpired(bankCard)) {
-            if (bankCard.getAccount().getAmount() >= amount) {
-                double lastAmount = bankCard.getAccount().getAmount() - amount;
-                bankCard.getAccount().setAmount(lastAmount);
-                bankCardRepository.save(bankCard);
-            } else throw new BankCardException(ExceptionMessages.NOT_ENOUGH_BALANCE);
-        } else throw new BankCardException(ExceptionMessages.CARD_EXPIRED);
+        if (isExpired(bankCard)) {
+            throw new BankCardException(ExceptionMessages.CARD_EXPIRED);
+        }
+        if (bankCard.getAccount().getAmount() < amount) {
+            throw new BankCardException(ExceptionMessages.NOT_ENOUGH_BALANCE);
+        }
+        double lastAmount = bankCard.getAccount().getAmount() - amount;
+        bankCard.getAccount().setAmount(lastAmount);
+        bankCardRepository.save(bankCard);
+
     }
 
     public void depositMoneyInAtm(Long id, double amount) {
         BankCard bankCard = bankCardRepository.findById(id).orElseThrow(() -> new BankCardException(ExceptionMessages.BANK_CARD_NOT_EXIST));
-        if (!isExpired(bankCard)){
-            double lastAmount = bankCard.getAccount().getAmount() + amount;
-            bankCard.getAccount().setAmount(lastAmount);
-            bankCardRepository.save(bankCard);
-        }else throw new BankCardException(ExceptionMessages.CARD_EXPIRED);
+        if (isExpired(bankCard)) {
+            throw new BankCardException(ExceptionMessages.CARD_EXPIRED);
+        }
+        double lastAmount = bankCard.getAccount().getAmount() + amount;
+        bankCard.getAccount().setAmount(lastAmount);
+        bankCardRepository.save(bankCard);
     }
 }

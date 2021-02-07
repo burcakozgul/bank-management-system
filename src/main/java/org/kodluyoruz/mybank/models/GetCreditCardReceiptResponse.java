@@ -8,7 +8,7 @@ public class GetCreditCardReceiptResponse {
 
     public List<Expenses> getExpenses() {
         if (expenses == null) {
-            return expenses = new ArrayList<>();
+            expenses = new ArrayList<>();
         }
         return expenses;
     }
