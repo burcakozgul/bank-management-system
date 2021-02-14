@@ -201,7 +201,7 @@ public class CreditCardService {
         CreditCardReceipt receipt = new CreditCardReceipt();
         receipt.setCreditCardId(id);
         receipt.setProcessName(processName);
-        receipt.setDate(LocalDateTime.now());
+        receipt.setDate(LocalDateTime.now().minusMonths(1));
         receipt.setAmount(amount);
         receiptRepository.save(receipt);
     }

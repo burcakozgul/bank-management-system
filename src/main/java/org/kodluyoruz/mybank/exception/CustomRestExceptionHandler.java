@@ -14,7 +14,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleApiException(final CustomerException ex) {
         final ApiError apiError;
 
-        apiError = createApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        apiError = createApiError(HttpStatus.NOT_FOUND, ex.getMessage());
         return new ResponseEntity<>(apiError, apiError.getHttpStatus());
     }
 
@@ -22,7 +22,7 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleApiException(final AccountException ex) {
         final ApiError apiError;
 
-        apiError = createApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        apiError = createApiError(HttpStatus.NOT_FOUND, ex.getMessage());
         return new ResponseEntity<>(apiError, apiError.getHttpStatus());
     }
 
@@ -30,14 +30,14 @@ public class CustomRestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleApiException(final BankCardException ex) {
         final ApiError apiError;
 
-        apiError = createApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        apiError = createApiError(HttpStatus.NOT_FOUND, ex.getMessage());
         return new ResponseEntity<>(apiError, apiError.getHttpStatus());
     }
     @ExceptionHandler({CreditCardException.class})
     public ResponseEntity<Object> handleApiException(final CreditCardException ex) {
         final ApiError apiError;
 
-        apiError = createApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+        apiError = createApiError(HttpStatus.NOT_FOUND, ex.getMessage());
         return new ResponseEntity<>(apiError, apiError.getHttpStatus());
     }
 

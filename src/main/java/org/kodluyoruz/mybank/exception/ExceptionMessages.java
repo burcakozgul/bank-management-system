@@ -1,7 +1,7 @@
 package org.kodluyoruz.mybank.exception;
 
 public class ExceptionMessages {
-    public static final String CUSTOMER_EXIST = "Personal id exist!";
+    public static final String CUSTOMER_EXIST = "Tckn exist!";
     public static final String CREDIT_CARD_NOT_EXIST = "Credit card id is not exist!";
     public static final String CUSTOMER_NOT_EXIST = "Customer id is not exist!";
     public static final String ACCOUNT_NOT_EXIST = "Account id is not exist!";
@@ -12,7 +12,7 @@ public class ExceptionMessages {
     public static final String RECEIVER_IBAN_NOT_FOUND = "Receiver Iban not found!";
     public static final String SAVING_ACCOUNT_MONEY_TRANSFER = "Savings accounts cannot be used for money transfer";
     public static final String NOT_ENOUGH_BALANCE = "Not enough balance";
-    public static final String ACCOUNT_NOT_VALID = "Account id doesn't exist or Account type doesn't valid!";
+    public static final String ACCOUNT_NOT_VALID = "Account id is not exist or Account type doesn't valid!";
     public static final String ACCOUNT_HAS_BANKCARD = "Account has bank card.";
     public static final String CARD_EXPIRED = "Card expired!";
     public static final String CARD_INFORMATION = "Please check card information";
