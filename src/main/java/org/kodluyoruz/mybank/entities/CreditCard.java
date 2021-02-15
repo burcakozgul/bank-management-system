@@ -21,6 +21,17 @@ public class CreditCard {
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private Customer customer;
 
+    @Version
+    private int version;
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
     public int getExpiredMonth() {
         return expiredMonth;
     }

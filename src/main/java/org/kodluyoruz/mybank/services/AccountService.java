@@ -64,8 +64,9 @@ public class AccountService {
         if (senderAccount.getAmount() < amount) {
             throw new AccountException(ExceptionMessages.NOT_ENOUGH_BALANCE);
         }
-        if ((senderAccount.getAccountType().equals(AccountType.SAVING) || receiverAccount.getAccountType().equals(AccountType.SAVING))) {
-            throw new AccountException(ExceptionMessages.SAVING_ACCOUNT_MONEY_TRANSFER);
+        if ((senderAccount.getAccountType().equals(AccountType.SAVING) || receiverAccount.getAccountType().equals(AccountType.SAVING))
+                && !senderAccount.getCustomer().getId().equals(receiverAccount.getCustomer().getId())) {
+            throw new AccountException(ExceptionMessages.MONEY_TRANSFER_OTHER_CUSTOMER_SAVING_ACCOUNT);
         } else {
             checkCurrency(senderAccount, receiverAccount, amount);
         }

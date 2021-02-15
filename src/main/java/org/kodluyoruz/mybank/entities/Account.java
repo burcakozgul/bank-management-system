@@ -29,6 +29,17 @@ public class Account {
     @OneToOne(mappedBy = "account", cascade = CascadeType.ALL)
     private BankCard bankCard;
 
+    @Version
+    private int version;
+
+    public int getVersion() {
+        return version;
+    }
+
+    public void setVersion(int version) {
+        this.version = version;
+    }
+
     public String getName() {
         return name;
     }

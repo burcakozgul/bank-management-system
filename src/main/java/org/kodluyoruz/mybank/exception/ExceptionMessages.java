@@ -10,7 +10,7 @@ public class ExceptionMessages {
     public static final String ACCOUNT_BALANCE = "There is a account balance!";
     public static final String SENDER_IBAN_NOT_FOUND = "Sender Iban not found!";
     public static final String RECEIVER_IBAN_NOT_FOUND = "Receiver Iban not found!";
-    public static final String SAVING_ACCOUNT_MONEY_TRANSFER = "Savings accounts cannot be used for money transfer";
+    public static final String MONEY_TRANSFER_OTHER_CUSTOMER_SAVING_ACCOUNT = "Money cannot be transferred to other customers' savings accounts";
     public static final String NOT_ENOUGH_BALANCE = "Not enough balance";
     public static final String ACCOUNT_NOT_VALID = "Account id is not exist or Account type doesn't valid!";
     public static final String ACCOUNT_HAS_BANKCARD = "Account has bank card.";
