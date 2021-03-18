@@ -1,9 +1,9 @@
-package org.kodluyoruz.mybank.controllers;
+package com.burcak.mybank.controllers;
 
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.kodluyoruz.mybank.models.MoneyTransferRequest;
+import com.burcak.mybank.models.MoneyTransferRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,8 +13,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(AccountController.class)

@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.models;
+package com.burcak.mybank.models;
 
 public class UpdateCustomerRequest {
     private String address;

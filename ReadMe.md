@@ -1,48 +1,30 @@
-# Fibabanka Java Bootcamp Bitirme Projesi
+# Bank Management System
 
 ![money transfer](money_transfer.jpg)
 
-Bu bitirme projesi kapsamında bootcamp katılımcılarının bir online bankacılık sisteminin backend servislerini yazmaları 
-beklenmektedir. Proje kapsamında beklenen minimum fonksiyonlar ve teknik ihtiyaçlar aşağıda listelenmiştir.
+Bank management system includes customer management, account management, card management and money transfer management. The exchange rate difference between accounts belonging to different currencies to be transferred is made by withdrawing from the API. This project includes OneToOne, OneToMany and ManyToOne relationships.
 
-Bitirme projesi bireysel olarak implemente edilecek birbiriyle aynı olan projeler başarısız sayılacaktır. Bunun yanında
-yardımlaşma, fikir alışverişi herzamanki gibi desteklenmektedir :) 
 
-## Beklenen fonksiyonlar
-* Müşteri yönetimi
-* Hesap yönetimi
-* Kart yönetimi
-* Transfer yönetimi
+## Tools and technologies utilized in this project:
 
-### Müşteri yönetimi
-Yaratılacak API'lar aracılığıyla; müşteri yaratma, güncelleme ve silme işlemleri mümkün olacaktır. Silme işlemi hesaplarında
-parası bulunan yada kredi kartı borcu bulunan müşteriler için mümkün olmayacak.
+- Java 8
+- Spring Boot
+- Maven
+- Spring Data JPA
+- MySQL
+- Git
+- IntelliJ IDEA
 
-### Hesap yönetimi
-Banka müşterilerinin yatırımlarını kontrol etmek amacıyla kullanabilmeleri için hesap yaratmalarına, silmelerine API'lar
-aracılığıyla izin verilecektir. Kullanıcılar iki farkılı türde hesap açabilecek, vadesiz mevduat hesabı ve birikim hesabı.
-İki hesap arası para transferi yapılabilecek, vadesiz mevduat hesabı başka hesaplara para transferi için kullanılabilecekken
-birikim hesabından doğrudan para transferi yapılamayacak. Hesaplar TL, Euro yada Dolar para birimlerinde açılabilecek.
+## ER Diagram
 
-### Kart yönetimi
-Müşterilere banka tarafından bankamatiklerde yada alışverişte kullanılmak üzere ön ödemeli banka kartı ve kredi kartları
-sunulmaktadır. Bu kartların yaratılması, müşteri ve hesapla ilişkilendirilmesi, kart kullanarak para transferi (alışveriş) 
-fonksiyonları API'lar aracılığıyla sağlanacaktır.
+![ER Diagram](img_1.png)
 
-Ayrıca kredi kartları için; borç sorgulama, hesaptan borç ödeme, bankamatikten borç ödeme, ekstre görüntüleme (JSON formatında) 
-işlemleri yine API aracılığı ile yapılabilecek.
+## Endpoints
 
-### Transfer yönetimi
-Müşterilerin para transferlerini yönetmek için uygun API'lar sağlanmalıdır. Bir müşteri farklı para birimlerinde açılan 
-hesaplar arası transfer yapmak isterse güncel para kuru https://api.exchangeratesapi.io/latest?base=TRY API'dan 
-alınmalı ve dönüşüm yapılıp transfer öyle gerçekleştirilemeli. Transfer işlemleri sadece IBAN üzerinden gerçekleştirilebilecek.
+![customer](img_2.png)
 
-## Teknik beklentiler
-Yukarda belirtilen fonksiyonların tamamı Java programlama dili 8 versiyonu kullanılarak implemente edilecektir, proje genelinde
-bootcamp boyunca öğrendiğimiz OOP prensipleri doğru şekilde uygulanmalıdır. 
+![account](img_3.png)
 
-Tüm fonksiyonlar REST API'lar aracılığı ile yerine getirilmeli ve API'lar swagger arayüzü ile dökümantasyonu yapılmalıdır.
-Hata durumları uygun şekilde ele alınmalı ve hatalara uygun responselar üretilmeli.
+![credit-card](img_4.png)
 
-Uygulama genelinde Spring Boot, Spring MVC ve JPA kullanılmalı, clean code ve SOLID prensiplerine uyulmalı, unit testler 
-eklenmelidir.
+![bank-card](img_5.png)

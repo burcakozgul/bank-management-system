@@ -1,7 +1,8 @@
-package org.kodluyoruz.mybank.controllers;
+package com.burcak.mybank.controllers;
 
-import org.kodluyoruz.mybank.models.*;
-import org.kodluyoruz.mybank.services.CreditCardService;
+import com.burcak.mybank.models.*;
+import com.burcak.mybank.models.*;
+import com.burcak.mybank.services.CreditCardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

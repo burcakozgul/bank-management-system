@@ -1,7 +1,7 @@
-package org.kodluyoruz.mybank.client;
+package com.burcak.mybank.client;
 
-import org.kodluyoruz.mybank.entities.Currency;
-import org.kodluyoruz.mybank.entities.Exchange;
+import com.burcak.mybank.entities.Currency;
+import com.burcak.mybank.entities.Exchange;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

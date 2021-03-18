@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.models;
+package com.burcak.mybank.models;
 
 import java.util.ArrayList;
 import java.util.List;

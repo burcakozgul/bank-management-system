@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.exception;
+package com.burcak.mybank.exception;
 
 public class AccountException extends RuntimeException{
     public AccountException(String message) {

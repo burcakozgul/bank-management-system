@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.exception;
+package com.burcak.mybank.exception;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;

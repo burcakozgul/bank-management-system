@@ -1,10 +1,10 @@
-package org.kodluyoruz.mybank.services;
+package com.burcak.mybank.services;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.kodluyoruz.mybank.entities.Customer;
-import org.kodluyoruz.mybank.models.CreateCustomerRequest;
-import org.kodluyoruz.mybank.repositories.CustomerRepository;
+import com.burcak.mybank.entities.Customer;
+import com.burcak.mybank.models.CreateCustomerRequest;
+import com.burcak.mybank.repositories.CustomerRepository;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;

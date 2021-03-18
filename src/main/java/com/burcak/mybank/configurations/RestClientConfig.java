@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.configurations;
+package com.burcak.mybank.configurations;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

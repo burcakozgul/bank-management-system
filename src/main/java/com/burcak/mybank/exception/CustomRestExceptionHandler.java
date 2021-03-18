@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.exception;
+package com.burcak.mybank.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,7 +1,7 @@
-package org.kodluyoruz.mybank.models;
+package com.burcak.mybank.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import org.kodluyoruz.mybank.entities.ProcessName;
+import com.burcak.mybank.entities.ProcessName;
 
 import java.time.LocalDateTime;
 

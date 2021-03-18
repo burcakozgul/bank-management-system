@@ -1,8 +1,8 @@
-package org.kodluyoruz.mybank.controllers;
+package com.burcak.mybank.controllers;
 
-import org.kodluyoruz.mybank.models.CreateCustomerRequest;
-import org.kodluyoruz.mybank.models.UpdateCustomerRequest;
-import org.kodluyoruz.mybank.services.CustomerService;
+import com.burcak.mybank.models.CreateCustomerRequest;
+import com.burcak.mybank.models.UpdateCustomerRequest;
+import com.burcak.mybank.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

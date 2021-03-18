@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.entities;
+package com.burcak.mybank.entities;
 
 public enum AccountType {
     CHECKING,SAVING

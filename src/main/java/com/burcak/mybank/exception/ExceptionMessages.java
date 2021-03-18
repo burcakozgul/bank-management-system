@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.exception;
+package com.burcak.mybank.exception;
 
 public class ExceptionMessages {
     public static final String CUSTOMER_EXIST = "Tckn exist!";

@@ -1,8 +1,8 @@
-package org.kodluyoruz.mybank.controllers;
+package com.burcak.mybank.controllers;
 
-import org.kodluyoruz.mybank.models.CreateAccountRequest;
-import org.kodluyoruz.mybank.models.MoneyTransferRequest;
-import org.kodluyoruz.mybank.services.AccountService;
+import com.burcak.mybank.models.CreateAccountRequest;
+import com.burcak.mybank.models.MoneyTransferRequest;
+import com.burcak.mybank.services.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

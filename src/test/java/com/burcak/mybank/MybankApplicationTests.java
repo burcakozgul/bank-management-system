@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank;
+package com.burcak.mybank;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

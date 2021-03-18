@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.exception;
+package com.burcak.mybank.exception;
 
 public class BankCardException extends RuntimeException{
     public BankCardException(String message) {

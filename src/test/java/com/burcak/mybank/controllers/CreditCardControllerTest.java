@@ -1,10 +1,9 @@
-package org.kodluyoruz.mybank.controllers;
+package com.burcak.mybank.controllers;
 
 import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.kodluyoruz.mybank.models.ShoppingRequest;
-import org.kodluyoruz.mybank.services.CreditCardService;
+import com.burcak.mybank.models.ShoppingRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;

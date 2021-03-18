@@ -1,4 +1,4 @@
-package org.kodluyoruz.mybank.controllers;
+package com.burcak.mybank.controllers;
 
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;

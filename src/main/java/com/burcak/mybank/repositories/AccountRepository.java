@@ -1,7 +1,7 @@
-package org.kodluyoruz.mybank.repositories;
+package com.burcak.mybank.repositories;
 
-import org.kodluyoruz.mybank.entities.Account;
-import org.kodluyoruz.mybank.entities.AccountType;
+import com.burcak.mybank.entities.Account;
+import com.burcak.mybank.entities.AccountType;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

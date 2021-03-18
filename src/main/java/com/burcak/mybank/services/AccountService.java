@@ -1,14 +1,15 @@
-package org.kodluyoruz.mybank.services;
+package com.burcak.mybank.services;
 
-import org.kodluyoruz.mybank.client.ExchangeAPI;
-import org.kodluyoruz.mybank.entities.*;
-import org.kodluyoruz.mybank.exception.AccountException;
-import org.kodluyoruz.mybank.exception.CustomerException;
-import org.kodluyoruz.mybank.exception.ExceptionMessages;
-import org.kodluyoruz.mybank.models.CreateAccountRequest;
-import org.kodluyoruz.mybank.models.MoneyTransferRequest;
-import org.kodluyoruz.mybank.repositories.AccountRepository;
-import org.kodluyoruz.mybank.repositories.CustomerRepository;
+import com.burcak.mybank.entities.*;
+import com.burcak.mybank.exception.AccountException;
+import com.burcak.mybank.exception.CustomerException;
+import com.burcak.mybank.exception.ExceptionMessages;
+import com.burcak.mybank.repositories.AccountRepository;
+import com.burcak.mybank.repositories.CustomerRepository;
+import com.burcak.mybank.client.ExchangeAPI;
+import com.burcak.mybank.entities.*;
+import com.burcak.mybank.models.CreateAccountRequest;
+import com.burcak.mybank.models.MoneyTransferRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,7 @@
-package org.kodluyoruz.mybank.models;
+package com.burcak.mybank.models;
 
-import org.kodluyoruz.mybank.entities.AccountType;
-import org.kodluyoruz.mybank.entities.Currency;
+import com.burcak.mybank.entities.AccountType;
+import com.burcak.mybank.entities.Currency;
 
 public class CreateAccountRequest {
     private String name;
